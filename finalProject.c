@@ -1,4 +1,3 @@
-#pragma config(Sensor, in1,    rightLightSensor, sensorReflection)
 #pragma config(Sensor, in2,    leftLightSensor, sensorReflection)
 #pragma config(Sensor, dgtl4,  frontLeftBumper, sensorTouch)
 #pragma config(Sensor, dgtl5,  frontRightBumper, sensorTouch)
@@ -31,14 +30,57 @@ task main() {
 //1. Find the Light -- Set orientation to the light.
 //2. Drive towards the light until contact with some sensor.
 //3. Continue driving in direction of light.  If we turn we are not driving to the light we have to orient ourself to light again. But have to avoid a loop
-  //driveMotors(127,-127);
-//alignToLight();
-//driveMotors(-100,100);
-driveMotors(-127,127);
-wait1Msec(200000);
-//while (1) {
-//followRightWall();
-//}
+	//driveMotors(127,-127);
+while (!vexRT[Btn6D]) {
+if (vexRT[Btn6U]) {
+	while (!vexRT[Btn6D]) {
+		if (SensorValue(frontLeftBumper)==0) {
+			driveMotors(-80,110);
+			wait1Msec(100);
+		} else {
+			driveMotors(80,-110);
+			wait1Msec(300);
+			turnLeft(2300);
+		}
+		if (vexRT[Btn6D]) {
+			stopMotors(100000);
+		}
+	}
+}
+}
+
+
+
+/*
+
+	int closeToLight = 70;
+
+	alignToLight();
+	
+	
+	wait1Msec(2000);
+	while (1) {
+	followRightWall();
+	}
+	
+	// In this loop as long as the robot has not found the light.
+	while (SensorValue(leftLightSensor) > closeToLight) {
+		if (SensorValue(leftLimitSensor) == 1	) {
+			followLeftWall();	
+		}
+		if (SensorValue(rightLimitSensor) == 1) {
+			followRightWall();	
+		}
+		if (SensorValue(frontLeftBumper) == 1) {
+			// Needs Testing to ensure full 90 degree turn
+			turnRight(1500);
+		}
+		if (SensorValue(frontRightBumper) == 1) {
+			// Needs ttesting to ensure full 90 degree turn
+			turnLeft(1500);	
+		}	
+	}
+	*/
 }
 
 
@@ -72,7 +114,7 @@ void followLeftWall() {
 	** We should correct our direction (to avoid a crash) and oscillate on the wall.
 	*/
 	writeDebugStreamLine("In followLeftWall");
-	while(SensorValue(frontRightBumper) == 0) {
+	while((SensorValue(frontRightBumper) == 0) && (SensorValue(leftLightSensor) > 60)) {
 		driveMotors(-127,127);
 		wait1Msec(1000);
 		writeDebugStreamLine("In the first while loop of followLeftWall");
@@ -100,8 +142,8 @@ void followRightWall() {
 	** If the limit switches are activated then the robot is traveling
 	** in a direction that is somewhat close to being parrallel of the wall.
 	** We should correct our direction (to avoid a crash) and oscillate on the wall.
-	*/	
-	while(SensorValue(frontRightBumper) == 0) {
+	*/
+	while((SensorValue(frontRightBumper) == 0) && (SensorValue(leftLightSensor) > 60)) {
 		driveMotors(-127,127);
 		wait1Msec(100);
 		while ((SensorValue(rightLimitSensor) == 0) && (SensorValue(frontRightBumper) == 0)) {
